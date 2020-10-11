@@ -1,6 +1,6 @@
 'use strict';
 
-const { DynamoDB, RemoteCredentials } = require('aws-sdk');
+const DynamoDB = require('aws-sdk');
 const AWS = require('aws-sdk');
 const md5 = require('md5');
 const DYNAMO = new AWS.DynamoDB.DocumentClient();
@@ -13,12 +13,7 @@ module.exports.shorten = async event => {
       throw new Error('must specify url');
     }
   } catch (error) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify(
-        { message: error.message }
-      )
-    }
+    return createResp(400, error.message);
   }
 
   let url = body.url;
@@ -58,14 +53,7 @@ module.exports.shorten = async event => {
         }
       })
       .catch(err => {
-        return {
-          statusCode: 500,
-          body: JSON.stringify(
-            {
-              message: error.message,
-            }
-          ),
-        };
+        return createResp(500, error.message);
       });
   }
 
@@ -81,14 +69,7 @@ module.exports.shorten = async event => {
   try {
     await DYNAMO.put(params).promise();
   } catch (error) { 
-    return {
-      statusCode: 500,
-      body: JSON.stringify(
-        {
-          message: error.message,
-        }
-      ),
-    };
+    return createResp(500, error.message);
   }
 
   return {
@@ -107,14 +88,7 @@ module.exports.get = async event => {
 
   const query = event.pathParameters;
   if(!('link' in query)) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify(
-        {
-          message: 'missing link parameter',
-        }
-      ),
-    };
+    return createResp(400, 'missing link parameter');
   }
 
   const params = {
@@ -128,21 +102,11 @@ module.exports.get = async event => {
   try {
     data = await DYNAMO.get(params).promise();
   } catch (error) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify(
-        {
-          message: 'link not found',
-        }
-      ),
-    }; 
+    return createResp(404, 'link not found')
   }
 
   if (data.Item == undefined || data.Item._timeout < Date.now()) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify(),
-    };
+    return createResp(404);
   }
 
   return {
@@ -153,3 +117,14 @@ module.exports.get = async event => {
     body: JSON.stringify(),
   };
 };
+
+function createResp(statusCode, message) {
+  return {
+    statusCode: statusCode,
+    body: JSON.stringify( 
+      {
+        message: message
+      }
+     ),
+  };
+}
