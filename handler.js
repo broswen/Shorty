@@ -3,12 +3,14 @@
 const DynamoDB = require('aws-sdk');
 const AWS = require('aws-sdk');
 const md5 = require('md5');
+const qs = require('querystring');
 const DYNAMO = new AWS.DynamoDB.DocumentClient();
 
 module.exports.shorten = async event => {
+  console.log(event);
   let body;
   try {
-    body = JSON.parse(event.body);
+    body = qs.parse(event.body);
     if (!('url' in body)) {
       throw new Error('must specify url');
     }
