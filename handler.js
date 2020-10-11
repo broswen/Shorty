@@ -76,7 +76,7 @@ module.exports.shorten = async event => {
     statusCode: 200,
     body: JSON.stringify(
       {
-        url: `${event.headers.Host}/l/${hash}`,
+        url: `https://${event.headers.Host}/l/${hash}`,
       }
     ),
   };
@@ -106,7 +106,7 @@ module.exports.get = async event => {
   }
 
   if (data.Item == undefined || data.Item._timeout < Date.now()) {
-    return createResp(404);
+    return createResp(404, 'link not found');
   }
 
   return {
