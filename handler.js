@@ -63,7 +63,7 @@ module.exports.shorten = async event => {
     Item: {
       "_link": hash,
       "_url": url,
-      "_timeout": Date.now() + (1000 * 60 * 60 * 24) // one day timeout
+      "_timeout": (Date.now()/1000) + (60 * 60 * 24) 
     },
     TableName: process.env.LINKTABLE
   }
@@ -107,7 +107,7 @@ module.exports.get = async event => {
     return createResp(404, 'link not found')
   }
 
-  if (data.Item == undefined || data.Item._timeout < Date.now()) {
+  if (data.Item == undefined || data.Item._timeout < (Date.now()/1000)) {
     return createResp(404, 'link not found');
   }
 

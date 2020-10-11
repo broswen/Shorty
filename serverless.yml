@@ -51,3 +51,6 @@ resources:
           - AttributeName: "_link"
             KeyType: "HASH"
         BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: _timeout
+          Enabled: true
