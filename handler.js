@@ -61,7 +61,7 @@ module.exports.shorten = async event => {
     Item: {
       "_link": hash,
       "_url": url,
-      "_timeout": Date.now() + (1000 * 60)
+      "_timeout": Date.now() + (1000 * 60 * 60 * 24) // one day timeout
     },
     TableName: process.env.LINKTABLE
   }
