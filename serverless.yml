@@ -1,0 +1,53 @@
+service: shorty
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+      Resource: !GetAtt LinkTable.Arn
+
+  environment:
+    LINKTABLE: !Ref LinkTable
+
+functions:
+  GetLink:
+    handler: handler.get
+    events:
+      - http:
+          path: /l/{link}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                link: true
+  ShortenLink:
+    handler: handler.shorten
+    events:
+      - http:
+          path: /shorten
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    LinkTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Links
+        AttributeDefinitions:
+          - AttributeName: "_link"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "_link"
+            KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
